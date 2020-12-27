@@ -5,6 +5,8 @@ const textsize = 20;
 let data2020;
 let streams;
 
+let testdata2020;
+
 function preload() {
     data2020 = [
         {
@@ -189,12 +191,14 @@ function preload() {
         }
     ]
 
+    testdata2020 = loadJSON("./../data/2020 Sucks - Global.json");
+
     // I hate github pages :/
 }
 
 function setup() {
 
-    console.log(data2020)
+    console.log(testdata2020)
 
     createCanvas(windowWidth, windowHeight);
     streams = new AllStreams();

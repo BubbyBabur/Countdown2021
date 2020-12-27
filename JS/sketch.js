@@ -276,7 +276,7 @@ class Node {
     }
 
     render() {
-        fill(255,0,0);
+        fill(255,255,255,100);
         ellipse(this.pos.x,this.pos.y,10,10);
     }
 

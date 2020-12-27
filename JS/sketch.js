@@ -225,7 +225,7 @@ class AllStreams {
     }
 
     randStream(x) {
-        return new Stream(x, this.randChoice(data2020).Name, Math.floor(1 + 5 * Math.random()), Math.floor(30 + 40 * Math.random()), 200 * Math.random())
+        return new Stream(x, this.randChoice(data2020).Name, Math.floor(1 + 4 * Math.random()), Math.floor(30 + 40 * Math.random()), 200 * Math.random())
     }
 
     update(){ 

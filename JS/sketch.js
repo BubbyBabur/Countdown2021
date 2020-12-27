@@ -5,74 +5,20 @@ const textsize = 20;
 let data2020;
 let streams;
 let font;
+let countdown;
 
 function preload() {
     data2020 = loadJSON("https://raw.githubusercontent.com/BubbyBabur/Countdown2021/master/data/2020%20Sucks%20-%20Global.json");
     font = loadFont("https://raw.githubusercontent.com/BubbyBabur/Countdown2021/master/data/Lato-Bold.otf");
 }
 
-
-
-let textstr = "1"
-
-let points;
-let bounds;
-
-let nodes = [];
-
 function setup() {
 
     createCanvas(windowWidth, windowHeight);
     streams = new AllStreams();
 
+    countdown = new Countdown("2021-01-01T00:00:00.00");
 
-    textFont(font);
-    textSize(300);
-    fill(255, 0, 0);
-
-    points = font.textToPoints(textstr, width / 2, height / 2);
-    bounds = font.textBounds(textstr, width / 2, height / 2);
-
-    for (const p of points) {
-        nodes.push(new Node(p.x - bounds.w / 2, p.y + bounds.h / 2));
-    }
-
-    setInterval(() => {
-
-        textFont(font);
-        textSize(300);
-        fill(255, 0, 0);
-
-
-        textstr = "" + Math.floor( 100*Math.random() );
-        points = font.textToPoints(textstr, width / 2, height / 2);
-        bounds = font.textBounds(textstr, width / 2, height / 2);
-
-        if(points.length < nodes.length) {
-            // We need less nodes!
-            let todelete = nodes.length - points.length;
-            for(let i = 0; i < todelete; i++) {
-                // delete random nodes
-                let randindex = Math.floor( Math.random() * nodes.length );
-                nodes.splice(randindex,1);
-            } 
-        } else if(points.length > nodes.length) {
-            // We need more nodes!
-            let tocopy = points.length - nodes.length;
-            for (let i = 0; i < tocopy; i++) {
-                // copy random nodes
-                let randindex = Math.floor(Math.random() * nodes.length);
-                nodes.splice(randindex, 0, new Node(nodes[randindex].target.x, nodes[randindex].target.y, nodes[randindex].pos.x, nodes[randindex].pos.y ));
-            }
-        }
-
-        // console.log(nodes.length, points.length)
-        for (let i = 0; i < points.length; i++) {
-            const p = points[i];
-            nodes[i].setTarget(p.x - bounds.w / 2, p.y + bounds.h / 2);
-        }
-        // console.log(textstr)
-    }, 1000);
 }
 
 function windowResized() {
@@ -86,17 +32,11 @@ function draw() {
 
     noStroke();
 
-    // textFont(font);
-    // textSize(300);
     fill(255, 0, 0);
 
     text(Math.round(frameRate()), 15,15);
 
-    for(const n of nodes) {
-        n.update();
-    }
-    // fill(0,255,0);
-    // ellipse(width/2, height/2, 100,100);
+    countdown.update();
 }
 
 class AllStreams {
@@ -282,5 +222,120 @@ class Node {
 
     setTarget(x,y){
         this.target = createVector(x,y);
+    }
+}
+
+class Morph {
+    constructor(str,x,y,textsize) {
+
+        this.pos = createVector(x,y);
+
+        this.textsize = textsize || 300;
+
+        textFont(font);
+        textSize(this.textsize);
+        fill(255, 0, 0);
+
+
+        this.textstr = str;
+
+        this.points = font.textToPoints(this.textstr, this.pos.x, this.pos.y);
+        this.bounds = font.textBounds(this.textstr, this.pos.x, this.pos.y);
+
+        this.nodes = [];
+        for (const p of this.points) {
+            this.nodes.push(new Node(p.x - this.bounds.w / 2, p.y + this.bounds.h / 2));
+        }
+    }
+
+    changeStr(str) {
+
+        this.textstr = str;
+        textFont(font);
+        textSize(this.textsize);
+        fill(255, 0, 0);
+
+        this.points = font.textToPoints(this.textstr, this.pos.x, this.pos.y);
+        this.bounds = font.textBounds(this.textstr, this.pos.x, this.pos.y);
+
+        if(this.points.length < this.nodes.length) {
+            // We need less nodes!
+            let todelete = this.nodes.length - this.points.length;
+            for(let i = 0; i < todelete; i++) {
+                // delete random nodes
+                let randindex = Math.floor( Math.random() * this.nodes.length );
+                this.nodes.splice(randindex,1);
+            } 
+        } else if(this.points.length > this.nodes.length) {
+            // We need more nodes!
+            let tocopy = this.points.length - this.nodes.length;
+            for (let i = 0; i < tocopy; i++) {
+                // copy random nodes
+                let randindex = Math.floor(Math.random() * this.nodes.length);
+                this.nodes.splice(randindex, 0, new Node(this.nodes[randindex].target.x, this.nodes[randindex].target.y, this.nodes[randindex].pos.x, this.nodes[randindex].pos.y ));
+            }
+        }
+
+        for (let i = 0; i < this.points.length; i++) {
+            const p = this.points[i];
+            this.nodes[i].setTarget(p.x - this.bounds.w / 2, p.y + this.bounds.h / 2);
+        }
+    }
+
+    update() {
+        for (const n of this.nodes) {
+            n.update();
+        }
+    }
+}
+
+class Countdown {
+    constructor(to) {
+        this.colons = [];
+
+        this.days = new Morph("01", 1*width / 5, height / 2, width / 7);
+        this.hours = new Morph("01", 2*width / 5, height / 2, width / 7);
+        this.minutes = new Morph("01",3*width / 5, height / 2, width / 7);
+        this.seconds = new Morph("01", 4*width / 5, height / 2, width / 7);
+
+
+        this.todate = moment(to);
+
+        this.setDiff();
+
+        console.log(this.todate);
+    }
+
+    getDiff(){
+        return moment.duration( this.todate.diff(moment()) );
+    }
+
+    setDiff(){
+        this.diff = this.getDiff();
+        let days = this.twoDigit(this.diff.days());
+        if(days !== this.days.textstr) this.days.changeStr( days );
+        let hours = this.twoDigit(this.diff.hours());
+        if (hours !== this.hours.textstr) this.hours.changeStr(hours);
+        let minutes = this.twoDigit(this.diff.minutes());
+        if (minutes !== this.minutes.textstr) this.minutes.changeStr(minutes);
+        let seconds = this.twoDigit(this.diff.seconds());
+        if (seconds !== this.seconds.textstr) this.seconds.changeStr(seconds);
+    }
+
+    twoDigit(num) {
+        num += "";
+        if(num.length < 2) {
+            num = `0${num}`;
+        }
+        return num;
+    }
+
+    update() {
+        this.days.update();
+        this.hours.update();
+        this.minutes.update();
+        this.seconds.update();
+
+        this.setDiff()
     }
 }

@@ -44,7 +44,7 @@ function setup() {
         fill(255, 0, 0);
 
 
-        textstr = "" + Math.floor( 10*Math.random() );
+        textstr = "" + Math.floor( 100*Math.random() );
         points = font.textToPoints(textstr, width / 2, height / 2);
         bounds = font.textBounds(textstr, width / 2, height / 2);
 
@@ -249,7 +249,7 @@ class Node {
         this.target = createVector(x,y);
 
         this.vel = createVector(0,0);
-        this.maxvel = 10;
+        this.maxvel = 20;
         this.maxforce = 3;
         this.acc = createVector(0,0);
     }
@@ -276,7 +276,7 @@ class Node {
     }
 
     render() {
-        fill(255,255,255,100);
+        fill(255,255,255);
         ellipse(this.pos.x,this.pos.y,10,10);
     }
 

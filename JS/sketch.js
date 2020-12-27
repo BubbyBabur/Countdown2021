@@ -1,6 +1,6 @@
 
 
-const textsize = 30;
+const textsize = 20;
 
 let data2020;
 let streams;
@@ -32,10 +32,16 @@ class AllStreams {
         for(let i = 0; i < width / textsize; i++) {
             this.streams.push(this.randStream(i * textsize))
         } 
+
+        console.log()
+    }
+
+    randChoice(arr) {
+        return arr[Math.floor(Math.random() * Math.max(...Object.keys(data2020).map(a => parseInt(a))))];
     }
 
     randStream(x) {
-        return new Stream(x, "haha brrrrrr", Math.floor(1 + 5 * Math.random()), Math.floor(30 + 40 * Math.random()), 255 * Math.random())
+        return new Stream(x, this.randChoice(data2020).Name, Math.floor(1 + 5 * Math.random()), Math.floor(30 + 40 * Math.random()), 200 * Math.random())
     }
 
     update(){ 
@@ -79,8 +85,8 @@ class Stream {
 
         this.completed = 0;
 
-        this.string = str.replace(/ /g, "");
-        // this.string = str;
+        // this.string = str.replace(/ /g, "");
+        this.string = str;
 
         this.changeprob = 0.05;
 

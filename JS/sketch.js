@@ -8,7 +8,7 @@ let streams;
 let testdata2020;
 
 function preload() {
-    
+    console.log("hi")
     data2020 = loadJSON("https://raw.githubusercontent.com/BubbyBabur/Countdown2021/master/data/2020%20Sucks%20-%20Global.json");
 
     // I hate github pages :/

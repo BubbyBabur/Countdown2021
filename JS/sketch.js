@@ -56,6 +56,8 @@ function draw() {
     if(DEFAULTS.fancydigits) {
 
         countdown.update();
+    }  else  {
+        countdown.updateBasic();
     }
 
     matrixbutton.render();
@@ -319,6 +321,9 @@ class Morph {
 class Countdown {
     constructor(to) {
         this.colons = [];
+        for(let i = 0; i < 3; i++) {
+            this.colons.push(new Morph(":", (i*2 + 3) * width/10, height/2, width/7));
+        }
 
         this.days = new Morph("01", 1*width / 5, height / 2, width / 7);
         this.hours = new Morph("01", 2*width / 5, height / 2, width / 7);
@@ -358,12 +363,15 @@ class Countdown {
 
     update() {
 
-        fill("#83C86B");
-        textSize(width / 7);
-        textAlign(CENTER, CENTER);
-        text(":", 3 * width / 10, height / 2)
-        text(":", 5 * width / 10 + 7, height / 2)
-        text(":", 7 * width / 10 + 15, height / 2)
+        // fill("#83C86B");
+        // textSize(width / 7);
+        // textAlign(CENTER, CENTER);
+        // text(":", 3 * width / 10, height / 2)
+        // text(":", 5 * width / 10 + 7, height / 2)
+        // text(":", 7 * width / 10 + 15, height / 2)
+        for(const colon of this.colons) {
+            colon.update();
+        }
 
         this.setDiff()
 
@@ -372,6 +380,15 @@ class Countdown {
         this.minutes.update();
         this.seconds.update();
 
+    }
+
+    updateBasic() {
+        let duration = this.getDiff();
+        fill("#83C86B");
+        textSize(width / 7);
+        textFont(font)
+        textAlign(CENTER, CENTER);
+        text(`${duration.days()}:${duration.hours()}:${duration.minutes()}:${duration.seconds()}`,width/2,height/2);
     }
 }
 

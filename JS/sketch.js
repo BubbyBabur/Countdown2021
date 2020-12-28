@@ -7,6 +7,17 @@ let streams;
 let font;
 let countdown;
 
+let state = "COUNTDOWN"
+
+let DEFAULTS = {
+    matrix: true,
+    fancydigits: true,
+    digits: false
+}
+
+let matrixbutton;
+let digitsbutton;
+
 function preload() {
     data2020 = loadJSON("https://raw.githubusercontent.com/BubbyBabur/Countdown2021/master/data/2020%20Sucks%20-%20Global.json");
     font = loadFont("https://raw.githubusercontent.com/BubbyBabur/Countdown2021/master/data/Lato-Bold.otf");
@@ -19,6 +30,14 @@ function setup() {
 
     countdown = new Countdown("2021-01-01T00:00:00.00");
 
+    matrixbutton = new Button(30,30,200,40,"Toggle Matrix Rain", () => {
+        DEFAULTS.matrix = !DEFAULTS.matrix;
+    })
+    digitsbutton = new Button(30, 90, 200, 40, "Toggle Fancy Text", () => {
+        DEFAULTS.fancydigits = !DEFAULTS.fancydigits;
+        DEFAULTS.digits = !DEFAULTS.digits;
+    })
+
 }
 
 function windowResized() {
@@ -28,15 +47,23 @@ function windowResized() {
 function draw() {
     background(0,0,0);
 
-    streams.update();
-
     noStroke();
 
+
+    if(DEFAULTS.matrix) {
+        streams.update();
+    }
+    if(DEFAULTS.fancydigits) {
+
+        countdown.update();
+    }
+
+    matrixbutton.render();
+    digitsbutton.render();
+    
     fill(255, 0, 0);
+    text(Math.round(frameRate()), 15, 15);
 
-    text(Math.round(frameRate()), 15,15);
-
-    countdown.update();
 }
 
 class AllStreams {
@@ -55,7 +82,7 @@ class AllStreams {
     }
 
     randStream(x) {
-        return new Stream(x, this.randChoice(data2020).Name, Math.floor(1 + 3 * Math.random()), Math.floor(30 + 40 * Math.random()), 200 * Math.random())
+        return new Stream(x, this.randChoice(data2020).Name, Math.floor(1 + 3 * Math.random()), Math.floor(30 + 40 * Math.random()), 150 * Math.random())
     }
 
     update(){ 
@@ -216,8 +243,8 @@ class Node {
     }
 
     render() {
-        fill(255,255,255);
-        ellipse(this.pos.x,this.pos.y,10,10);
+        fill("#83C86B");
+        ellipse(this.pos.x,this.pos.y,7,7);
     }
 
     setTarget(x,y){
@@ -298,7 +325,6 @@ class Countdown {
         this.minutes = new Morph("01",3*width / 5, height / 2, width / 7);
         this.seconds = new Morph("01", 4*width / 5, height / 2, width / 7);
 
-
         this.todate = moment(to);
 
         this.setDiff();
@@ -331,11 +357,57 @@ class Countdown {
     }
 
     update() {
+
+        fill("#83C86B");
+        textSize(width / 7);
+        textAlign(CENTER, CENTER);
+        text(":", 3 * width / 10, height / 2)
+        text(":", 5 * width / 10 + 7, height / 2)
+        text(":", 7 * width / 10 + 15, height / 2)
+
+        this.setDiff()
+
         this.days.update();
         this.hours.update();
         this.minutes.update();
         this.seconds.update();
 
-        this.setDiff()
+    }
+}
+
+function mouseClicked() {
+    matrixbutton.onClick();
+    digitsbutton.onClick();
+}
+
+class Button {
+    constructor(x,y,w,h,str,callback) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.str = str;
+        this.onclick = callback;
+    }
+
+    render() {
+        fill("#83C86B");
+        rect(this.x,this.y,this.w,this.h,10);
+        fill("black");
+        textAlign(CENTER,CENTER);
+        textFont("Inconsolata")
+        textSize(20);
+        text(this.str, this.x + this.w/2,this.y + this.h/2);
+    }
+
+    hovered(x,y) {
+        return x > this.x && y > this.y && x < this.x + this.w && y < this.y + this.h;
+    }
+
+    onClick() {
+        if(this.hovered(mouseX,mouseY)){
+            this.onclick();
+            console.log("hi1")
+        }
     }
 }

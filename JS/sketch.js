@@ -7,12 +7,11 @@ let streams;
 let font;
 let countdown;
 
-let state = "COUNTDOWN"
-
 let DEFAULTS = {
     matrix: true,
     fancydigits: true,
-    digits: false
+    digits: false,
+    state: "COUNTDOWN"
 }
 
 let matrixbutton;
@@ -29,14 +28,15 @@ function setup() {
     streams = new AllStreams();
 
     countdown = new Countdown("2021-01-01T00:00:00.00");
+    // countdown = new Countdown("2020-12-30T19:04:50.00");
 
     matrixbutton = new Button(30,30,200,40,"Toggle Matrix Rain", () => {
         DEFAULTS.matrix = !DEFAULTS.matrix;
     })
-    digitsbutton = new Button(30, 90, 200, 40, "Toggle Fancy Text", () => {
-        DEFAULTS.fancydigits = !DEFAULTS.fancydigits;
-        DEFAULTS.digits = !DEFAULTS.digits;
-    })
+    // digitsbutton = new Button(30, 90, 200, 40, "Toggle Fancy Text", () => {
+    //     DEFAULTS.fancydigits = !DEFAULTS.fancydigits;
+    //     DEFAULTS.digits = !DEFAULTS.digits;
+    // })
 
 }
 
@@ -54,14 +54,13 @@ function draw() {
         streams.update();
     }
     if(DEFAULTS.fancydigits) {
-
         countdown.update();
     }  else  {
         countdown.updateBasic();
     }
 
     matrixbutton.render();
-    digitsbutton.render();
+    // digitsbutton.render();
     
     fill(255, 0, 0);
     text(Math.round(frameRate()), 15, 15);
@@ -311,6 +310,10 @@ class Morph {
         }
     }
 
+    changeSize(num) {
+        this.textsize = num;
+    }
+
     update() {
         for (const n of this.nodes) {
             n.update();
@@ -330,6 +333,8 @@ class Countdown {
         this.minutes = new Morph("01",3*width / 5, height / 2, width / 7);
         this.seconds = new Morph("01", 4*width / 5, height / 2, width / 7);
 
+        this.finalCountdown = new Morph("10", width/2, height/2, width/5);
+
         this.todate = moment(to);
 
         this.setDiff();
@@ -338,7 +343,11 @@ class Countdown {
     }
 
     getDiff(){
-        return moment.duration( this.todate.diff(moment()) );
+        let duration = moment.duration( this.todate.diff(moment()) );
+        if(duration.hours() < 0 || duration.minutes() < 0 || duration.days() < 0 || duration.seconds() < 0) {
+            return new moment.duration(0);
+        }
+        return duration;
     }
 
     setDiff(){
@@ -351,6 +360,12 @@ class Countdown {
         if (minutes !== this.minutes.textstr) this.minutes.changeStr(minutes);
         let seconds = this.twoDigit(this.diff.seconds());
         if (seconds !== this.seconds.textstr) this.seconds.changeStr(seconds);
+        let final = this.oneDigit(this.diff.seconds());
+        if(final === "0") {
+            final = "Happy Halloween!"
+            this.finalCountdown.changeSize(width/12);
+        }
+        if (final !== this.finalCountdown.textstr) this.finalCountdown.changeStr(final);
     }
 
     twoDigit(num) {
@@ -361,24 +376,28 @@ class Countdown {
         return num;
     }
 
-    update() {
+    oneDigit(num){
+        return num + "";
+    }
 
-        // fill("#83C86B");
-        // textSize(width / 7);
-        // textAlign(CENTER, CENTER);
-        // text(":", 3 * width / 10, height / 2)
-        // text(":", 5 * width / 10 + 7, height / 2)
-        // text(":", 7 * width / 10 + 15, height / 2)
-        for(const colon of this.colons) {
-            colon.update();
-        }
+    update() {
 
         this.setDiff()
 
-        this.days.update();
-        this.hours.update();
-        this.minutes.update();
-        this.seconds.update();
+        if(this.diff._milliseconds <= 10 * 1000) {
+            this.finalCountdown.update();
+        } else {
+            this.days.update();
+            this.hours.update();
+            this.minutes.update();
+            this.seconds.update();
+
+            for (const colon of this.colons) {
+                colon.update();
+            }
+
+        }
+
 
     }
 
@@ -394,7 +413,7 @@ class Countdown {
 
 function mouseClicked() {
     matrixbutton.onClick();
-    digitsbutton.onClick();
+    // digitsbutton.onClick();
 }
 
 class Button {
